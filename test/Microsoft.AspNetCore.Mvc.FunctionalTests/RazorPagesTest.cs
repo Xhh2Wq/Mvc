@@ -414,9 +414,8 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         }
 
         [Fact]
-        public async Task TempData_TempDataProperty_IsPopulatedFromTempData()
+        public async Task TempData_TempDataPropertyOnPageModel_IsPopulatedFromTempData()
         {
-
             // Arrange 1
             var url = "http://localhost/TempData/SetMessageAndRedirect";
             var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -425,6 +424,15 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
             var response = await Client.SendAsync(request);
 
             // Assert 1
+            Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
+
+            // Act 2
+            request = new HttpRequestMessage(HttpMethod.Get, response.Headers.Location);
+            request.Headers.Add("Cookie", GetCookie(response));
+            response = await Client.SendAsync(request);
+
+            // Assert 2
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var content = await response.Content.ReadAsStringAsync();
             Assert.Equal("Message: Secret Message", content.Trim());
         }
