@@ -16,5 +16,11 @@ namespace RazorPagesWebSite.TempData
         {
             return View();
         }
+
+        public IActionResult OnPost()
+        {
+            Message = "Secret post";
+            return View();
+        }
     }
 }

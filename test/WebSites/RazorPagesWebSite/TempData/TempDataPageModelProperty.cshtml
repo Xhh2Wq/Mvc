@@ -2,3 +2,8 @@
 @model RazorPagesWebSite.TempData.TempDataPageModel
 
 Message: @Model.Message
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+}
+TempData: @TempData["TempDataProperty-Message"]

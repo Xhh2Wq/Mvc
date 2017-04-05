@@ -434,7 +434,46 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
             // Assert 2
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var content = await response.Content.ReadAsStringAsync();
-            Assert.Equal("Message: Secret Message", content.Trim());
+            Assert.StartsWith("Message: Secret Message", content.Trim());
+            Assert.EndsWith("TempData: Secret Message", content.Trim());
+        }
+
+        [Fact]
+        public async Task TempData_TempDataPropertyOnPageModel_PopulatesTempData()
+        {
+            // Arrange 1
+            var getRequest = new HttpRequestMessage(HttpMethod.Get, "http://localhost/TempData/TempDataPageModelProperty");
+            var getResponse = await Client.SendAsync(getRequest);
+            var getResponseBody = await getResponse.Content.ReadAsStringAsync();
+            var formToken = AntiforgeryTestHelper.RetrieveAntiforgeryToken(getResponseBody, "/TempData/TempDataPageModelProperty");
+            var cookie = AntiforgeryTestHelper.RetrieveAntiforgeryCookie(getResponse);
+
+            var url = "http://localhost/TempData/TempDataPageModelProperty";
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            request.Headers.Add("Cookie", cookie.Key + "=" + cookie.Value);
+            request.Headers.Add("RequestVerificationToken", formToken);
+
+            // Act 1
+            var response = await Client.SendAsync(request);
+
+            // Assert 1
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var content = await response.Content.ReadAsStringAsync();
+            Assert.StartsWith("Message: Secret post", content.Trim());
+            Assert.EndsWith("TempData:", content.Trim());
+
+            // Arrange 2
+            request = new HttpRequestMessage(HttpMethod.Get, "http://localhost/TempData/TempDataPageModelProperty");
+            request.Headers.Add("Cookie", GetCookie(response));
+
+            // Act 2
+            response = await Client.SendAsync(request);
+
+            // Assert 2
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            content = await response.Content.ReadAsStringAsync();
+            Assert.StartsWith("Message: Secret post", content.Trim());
+            Assert.EndsWith("TempData: Secret post", content.Trim());
         }
 
         [Fact]
