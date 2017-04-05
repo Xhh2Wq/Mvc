@@ -414,6 +414,22 @@ namespace Microsoft.AspNetCore.Mvc.FunctionalTests
         }
 
         [Fact]
+        public async Task TempData_TempDataProperty_IsPopulatedFromTempData()
+        {
+
+            // Arrange 1
+            var url = "http://localhost/TempData/SetMessageAndRedirect";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+            // Act 1
+            var response = await Client.SendAsync(request);
+
+            // Assert 1
+            var content = await response.Content.ReadAsStringAsync();
+            Assert.Equal("Message: Secret Message", content.Trim());
+        }
+
+        [Fact]
         public async Task AuthorizePage_AddsAuthorizationForSpecificPages()
         {
             // Arrange

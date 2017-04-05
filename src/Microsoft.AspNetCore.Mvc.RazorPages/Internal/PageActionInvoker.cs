@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Abstractions;
@@ -359,11 +360,18 @@ namespace Microsoft.AspNetCore.Mvc.RazorPages.Internal
                 }
             }
 
-            var originalValues = _propertyProvider.LoadAndTrackChanges(_page, _pageContext.TempData);
+            object subject = _page;
+
+            if (_model != null)
+            {
+                subject = _model;
+            }
+
+            var originalValues = _propertyProvider.LoadAndTrackChanges(subject, _pageContext.TempData);
             if (propertyFilter != null)
             {
                 propertyFilter.OriginalValues = originalValues;
-                propertyFilter.Subject = _page;
+                propertyFilter.Subject = subject;
             }
 
             IActionResult result = null;
